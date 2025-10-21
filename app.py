@@ -8,6 +8,7 @@ from game import TicTacToe
 from model import TicTacToeModel
 from training import SelfPlayTrainer
 import secrets
+import threading
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -46,21 +47,9 @@ def play_page():
     return render_template('play.html')
 
 
-@app.route('/api/start_training', methods=['POST'])
-def start_training():
-    """Start training the model"""
+def train_model_async():
+    """Train the model in a background thread"""
     global training_status, model
-    
-    if training_status['is_training']:
-        return jsonify({'error': 'Training already in progress'}), 400
-    
-    # Reset training status
-    training_status = {
-        'is_training': True,
-        'progress': 0,
-        'total_games': 100,
-        'results': {'wins': 0, 'losses': 0, 'draws': 0}
-    }
     
     def training_callback(game_num, total, results):
         """Update training progress"""
@@ -79,13 +68,34 @@ def start_training():
         model.save_model()
         
         training_status['is_training'] = False
-        return jsonify({
-            'success': True,
-            'results': results
-        })
+        
     except Exception as e:
         training_status['is_training'] = False
-        return jsonify({'error': str(e)}), 500
+        training_status['error'] = str(e)
+
+
+@app.route('/api/start_training', methods=['POST'])
+def start_training():
+    """Start training the model"""
+    global training_status
+    
+    if training_status['is_training']:
+        return jsonify({'error': 'Training already in progress'}), 400
+    
+    # Reset training status
+    training_status = {
+        'is_training': True,
+        'progress': 0,
+        'total_games': 100,
+        'results': {'wins': 0, 'losses': 0, 'draws': 0}
+    }
+    
+    # Start training in a background thread
+    training_thread = threading.Thread(target=train_model_async)
+    training_thread.daemon = True
+    training_thread.start()
+    
+    return jsonify({'success': True, 'message': 'Training started'})
 
 
 @app.route('/api/training_status')
@@ -190,4 +200,4 @@ def reset_game():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

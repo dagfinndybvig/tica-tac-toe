@@ -2,15 +2,15 @@
 Deep Learning model for Tic-Tac-Toe
 """
 import numpy as np
-from tensorflow import keras
-from tensorflow.keras import layers
+import keras
+from keras import layers
 import os
 
 
 class TicTacToeModel:
     """Neural network model for playing tic-tac-toe"""
     
-    def __init__(self, model_path='models/tictactoe_model.h5'):
+    def __init__(self, model_path='models/tictactoe_model.keras'):
         self.model_path = model_path
         self.model = self._build_model()
         
@@ -28,13 +28,13 @@ class TicTacToeModel:
     
     def predict(self, state):
         """Predict Q-values for a given state"""
-        state = np.array(state).reshape(1, -1)
+        state = np.array(state, dtype=np.float32).reshape(1, -1)
         return self.model.predict(state, verbose=0)[0]
     
     def train_on_batch(self, states, targets):
         """Train the model on a batch of states and targets"""
-        states = np.array(states)
-        targets = np.array(targets)
+        states = np.array(states, dtype=np.float32)
+        targets = np.array(targets, dtype=np.float32)
         return self.model.train_on_batch(states, targets)
     
     def save_model(self):
