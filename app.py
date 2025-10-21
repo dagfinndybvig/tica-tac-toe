@@ -114,8 +114,8 @@ def load_model():
             return jsonify({'success': True, 'message': 'Model loaded successfully'})
         else:
             return jsonify({'success': False, 'message': 'No trained model found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        return jsonify({'error': 'Failed to load model'}), 500
 
 
 @app.route('/api/make_move', methods=['POST'])
@@ -200,4 +200,4 @@ def reset_game():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5001)
