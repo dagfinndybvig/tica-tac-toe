@@ -1,0 +1,12 @@
+# Flask web framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Deep Learning
+tensorflow==2.18.0
+
+# Numerical computing
+numpy==1.26.2
+
+# Additional utilities
+gunicorn==21.2.0
