@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Game - Tic-Tac-Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .nav a {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover {
+            background: #764ba2;
+        }
+        
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+        
+        .cell {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .cell:hover:not(.occupied) {
+            background: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .cell.occupied {
+            cursor: not-allowed;
+        }
+        
+        .cell.x {
+            color: #667eea;
+        }
+        
+        .cell.o {
+            color: #764ba2;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-symbol {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .legend-symbol.x {
+            color: #667eea;
+        }
+        
+        .legend-symbol.o {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Play Against AI</h1>
+        
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/train">Train Model</a>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-symbol x">X</span>
+                <span>You</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-symbol o">O</span>
+                <span>AI</span>
+            </div>
+        </div>
+        
+        <div id="message" class="message hidden"></div>
+        
+        <div class="game-info" id="gameInfo">Your turn! Click a cell to play.</div>
+        
+        <div class="board" id="board">
+            <div class="cell" data-index="0" onclick="makeMove(0)"></div>
+            <div class="cell" data-index="1" onclick="makeMove(1)"></div>
+            <div class="cell" data-index="2" onclick="makeMove(2)"></div>
+            <div class="cell" data-index="3" onclick="makeMove(3)"></div>
+            <div class="cell" data-index="4" onclick="makeMove(4)"></div>
+            <div class="cell" data-index="5" onclick="makeMove(5)"></div>
+            <div class="cell" data-index="6" onclick="makeMove(6)"></div>
+            <div class="cell" data-index="7" onclick="makeMove(7)"></div>
+            <div class="cell" data-index="8" onclick="makeMove(8)"></div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="loadModel()">Load Trained Model</button>
+            <button onclick="resetGame()">New Game</button>
+        </div>
+    </div>
+    
+    <script>
+        let gameOver = false;
+        let modelLoaded = false;
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            messageEl.classList.remove('hidden');
+        }
+        
+        function hideMessage() {
+            document.getElementById('message').classList.add('hidden');
+        }
+        
+        function updateBoard(board) {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                const value = board[index];
+                cell.textContent = '';
+                cell.className = 'cell';
+                
+                if (value === 1) {
+                    cell.textContent = 'X';
+                    cell.classList.add('x', 'occupied');
+                } else if (value === -1) {
+                    cell.textContent = 'O';
+                    cell.classList.add('o', 'occupied');
+                }
+            });
+        }
+        
+        async function makeMove(position) {
+            if (gameOver) {
+                showMessage('Game is over. Start a new game!', 'warning');
+                return;
+            }
+            
+            if (!modelLoaded) {
+                showMessage('Please load the trained model first!', 'warning');
+                return;
+            }
+            
+            const cell = document.querySelector(`.cell[data-index="${position}"]`);
+            if (cell.classList.contains('occupied')) {
+                showMessage('This cell is already occupied!', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/make_move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ position: position })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    showMessage(error.error || 'Error making move', 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                updateBoard(data.board);
+                
+                if (data.game_over) {
+                    gameOver = true;
+                    if (data.winner === 1) {
+                        showMessage('🎉 You win!', 'success');
+                        document.getElementById('gameInfo').textContent = 'You win!';
+                    } else if (data.winner === -1) {
+                        showMessage('😔 AI wins!', 'error');
+                        document.getElementById('gameInfo').textContent = 'AI wins!';
+                    } else {
+                        showMessage('🤝 It\'s a draw!', 'info');
+                        document.getElementById('gameInfo').textContent = 'Draw!';
+                    }
+                } else {
+                    hideMessage();
+                    document.getElementById('gameInfo').textContent = 'Your turn!';
+                }
+                
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadModel() {
+            try {
+                const response = await fetch('/api/load_model', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    showMessage(error.message || 'Failed to load model. Please train a model first.', 'error');
+                    return;
+                }
+                
+                modelLoaded = true;
+                showMessage('Model loaded successfully! You can start playing.', 'success');
+                document.getElementById('gameInfo').textContent = 'Your turn! Click a cell to play.';
+                
+            } catch (error) {
+                showMessage('Error loading model: ' + error.message, 'error');
+            }
+        }
+        
+        async function resetGame() {
+            try {
+                const response = await fetch('/api/reset_game', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    gameOver = false;
+                    const cells = document.querySelectorAll('.cell');
+                    cells.forEach(cell => {
+                        cell.textContent = '';
+                        cell.className = 'cell';
+                    });
+                    hideMessage();
+                    document.getElementById('gameInfo').textContent = modelLoaded ? 
+                        'Your turn! Click a cell to play.' : 
+                        'Load the trained model to start playing.';
+                }
+                
+            } catch (error) {
+                showMessage('Error resetting game: ' + error.message, 'error');
+            }
+        }
+        
+        // Try to load model on page load
+        window.onload = function() {
+            showMessage('Click "Load Trained Model" to start playing, or train a model first if you haven\'t already.', 'info');
+        };
+    </script>
+</body>
+</html>
